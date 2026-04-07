@@ -226,7 +226,7 @@ export default function WallpaperCanvas({ cfg }: { cfg: WallpaperCfg }) {
     // Initialise cloud x-offsets spread evenly across 1.4× the canvas width
     const NUM_CLOUDS  = 6;
     const cloudSpeeds = [0.28, 0.20, 0.32, 0.17, 0.38, 0.23];
-    let cloudOffsets  = Array.from({ length: NUM_CLOUDS }, (_, i) => 0); // filled on first resize
+    let cloudOffsets  = Array.from({ length: NUM_CLOUDS }, () => 0); // filled on first resize
 
     let W = 0, H = 0;
 
