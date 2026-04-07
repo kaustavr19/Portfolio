@@ -1,101 +1,136 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import BootSequence from "@/components/os/BootSequence";
+import Desktop from "@/components/os/Desktop";
+import Taskbar from "@/components/os/Taskbar";
+import Window from "@/components/os/Window";
+import { useWindowManager, WindowId } from "@/hooks/useWindowManager";
+import { useIsDesktop } from "@/hooks/useIsDesktop";
+
+// Window contents
+import WorkFolder from "@/components/windows/WorkFolder";
+import LabFolder from "@/components/windows/LabFolder";
+import WritingFolder from "@/components/windows/WritingFolder";
+import AboutApp from "@/components/windows/AboutApp";
+import Terminal from "@/components/windows/Terminal";
+import GalleryApp from "@/components/windows/GalleryApp";
+import Notepad from "@/components/windows/Notepad";
+
+// Mobile layout
+import MobileLayout from "@/components/MobileLayout";
+
+const WINDOW_CONFIG: Record<
+  WindowId,
+  { title: string; defaultPosition: { x: number; y: number }; defaultWidth?: number; defaultMaximized?: boolean; noPadding?: boolean }
+> = {
+  work:                 { title: "WORK/",        defaultPosition: { x: 100, y: 30 }, defaultWidth: 900, defaultMaximized: true, noPadding: true },
+  lab:                  { title: "LAB/",         defaultPosition: { x: 110, y: 35 }, defaultWidth: 900, defaultMaximized: true, noPadding: true },
+  writing:              { title: "WRITING/",     defaultPosition: { x: 120, y: 40 }, defaultWidth: 900, defaultMaximized: true, noPadding: true },
+  about:                { title: "ABOUT.exe",    defaultPosition: { x: 130, y: 45 }, defaultWidth: 900, defaultMaximized: true, noPadding: true },
+  terminal:             { title: "TERMINAL",          defaultPosition: { x: 140, y: 50 }, defaultWidth: 700, noPadding: true },
+  gallery:              { title: "GALLERY",            defaultPosition: { x: 150, y: 50 }, defaultWidth: 700 },
+  readme:               { title: "README.txt - Notepad", defaultPosition: { x: 180, y: 60 }, defaultWidth: 520, noPadding: true },
+  "casestudy-cogentiq": { title: "Cogentiq",    defaultPosition: { x: 160, y: 55 }, defaultWidth: 800 },
+  "casestudy-insurance":{ title: "Insurance AI", defaultPosition: { x: 170, y: 60 }, defaultWidth: 800 },
+  "casestudy-eugenie":  { title: "Eugenie.ai",   defaultPosition: { x: 180, y: 65 }, defaultWidth: 800 },
+};
+
+function WindowContent({ id }: { id: WindowId }) {
+  switch (id) {
+    case "work":    return <WorkFolder />;
+    case "lab":     return <LabFolder />;
+    case "writing": return <WritingFolder />;
+    case "about":   return <AboutApp />;
+    case "terminal":return <Terminal />;
+    case "gallery": return <GalleryApp />;
+    case "readme":  return <Notepad />;
+    default:        return null;
+  }
+}
+
+export default function Page() {
+  const [booted, setBooted] = useState(false);
+  const isDesktop = useIsDesktop();
+  const { windows, openWindows, openWindow, closeWindow, minimiseWindow, bringToFront } =
+    useWindowManager();
+
+  // Lock body scroll on desktop, free it on mobile
+  useEffect(() => {
+    document.body.style.overflow = isDesktop ? "hidden" : "auto";
+    return () => { document.body.style.overflow = ""; };
+  }, [isDesktop]);
+
+  const activeWindow = openWindows
+    .filter((w) => !w.isMinimised)
+    .sort((a, b) => b.zIndex - a.zIndex)[0];
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      {/* Boot sequence — only on desktop, skipped on mobile */}
+      {!booted && isDesktop && (
+        <BootSequence onComplete={() => setBooted(true)} />
+      )}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      {/* Desktop OS — desktop only */}
+      {isDesktop && (
+        <AnimatePresence>
+          {booted && (
+            <motion.div
+              key="desktop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              style={{ position: "fixed", inset: 0, zIndex: 1 }}
+            >
+              {/* Desktop wallpaper + icons */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 40 }}>
+                <Desktop onOpen={openWindow} />
+              </div>
+
+              {/* Windows */}
+              {windows.map((win) => {
+                const cfg = WINDOW_CONFIG[win.id];
+                return (
+                  <Window
+                    key={win.id}
+                    id={win.id}
+                    title={cfg.title}
+                    isOpen={win.isOpen}
+                    isMinimised={win.isMinimised}
+                    zIndex={win.zIndex}
+                    defaultPosition={cfg.defaultPosition}
+                    defaultWidth={cfg.defaultWidth}
+                    defaultMaximized={cfg.defaultMaximized}
+                    noPadding={cfg.noPadding}
+                    onClose={closeWindow}
+                    onMinimise={minimiseWindow}
+                    onFocus={bringToFront}
+                  >
+                    <WindowContent id={win.id} />
+                  </Window>
+                );
+              })}
+
+              {/* Taskbar */}
+              <Taskbar
+                openWindows={openWindows}
+                activeId={activeWindow?.id}
+                onOpen={openWindow}
+                onWindowClick={(id) => {
+                  const win = windows.find((w) => w.id === id);
+                  if (win?.isMinimised) openWindow(id);
+                  else bringToFront(id);
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+
+      {/* Mobile layout — shown immediately, no boot sequence */}
+      {!isDesktop && <MobileLayout />}
+    </>
   );
 }

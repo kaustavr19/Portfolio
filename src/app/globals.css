@@ -2,26 +2,124 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design Tokens (retro XP / light — the only mode) ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Base surface tokens */
+  --desktop-bg: #c0c0c0;
+  --window-bg: #ffffff;
+  --titlebar-bg: #ffffff;
+  --os-border: #d4d0c8;
+  --text-primary: #000000;
+  --text-secondary: #222222;
+  --text-muted: #555555;
+  --accent-amber: #c8a000;
+  --accent-teal: #40c0a0;
+
+  /* XP chrome tokens */
+  --retro-bg: #c0c0c0;
+  --retro-window: #ffffff;
+  --retro-chrome: #c0c0c0;
+  --retro-hi: #ffffff;
+  --retro-shadow: #868686;
+  --retro-dark: #424242;
+  --retro-text: #000000;
+  --retro-stripe-a: #c0c0c0;
+  --retro-stripe-b: #d4d4d4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  background: var(--desktop-bg);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* ── Retro 3D bevel (raised) ── */
+.retro-raised {
+  border: 1px solid #000;
+  box-shadow:
+    inset 1px 1px 0 var(--retro-hi),
+    inset -1px -1px 0 var(--retro-shadow),
+    inset 2px 2px 0 var(--retro-stripe-b),
+    inset -2px -2px 0 var(--retro-dark);
+}
+
+/* ── Retro 3D bevel (inset/pressed) ── */
+.retro-inset {
+  border: 1px solid #000;
+  box-shadow:
+    inset 1px 1px 0 var(--retro-shadow),
+    inset -1px -1px 0 var(--retro-hi),
+    inset 2px 2px 0 var(--retro-dark),
+    inset -2px -2px 0 var(--retro-stripe-b);
+}
+
+/* ── XP retro scrollbar ── */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+::-webkit-scrollbar-track {
+  background: var(--retro-chrome);
+  border-left: 1px solid #868686;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--retro-chrome);
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #868686;
+  border-radius: 0;
+}
+::-webkit-scrollbar-button {
+  display: block;
+  background: var(--retro-chrome);
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #868686;
+  height: 16px;
+}
+
+/* ── Window drag cursor ── */
+.titlebar-drag {
+  cursor: grab;
+}
+.titlebar-drag:active {
+  cursor: grabbing;
+}
+
+/* ── Blinking cursor ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Focus ring (accessibility) ── */
+.focus-retro:focus-visible {
+  outline: 2px dotted #000;
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Mobile: allow scroll ── */
+@media (max-width: 767px) {
+  body {
+    overflow: auto;
   }
 }
