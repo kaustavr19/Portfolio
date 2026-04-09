@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { caseStudies } from "@/data/projects";
+import { caseStudies, type SectionBlock } from "@/data/projects";
 import { sideProjects } from "@/data/sideProjects";
 import { articles } from "@/data/writing";
 import Tag from "@/components/ui/Tag";
@@ -404,6 +404,51 @@ function WorkScreen() {
                 ))}
               </div>
             )}
+            {study.sections && study.sections.map((section) => (
+              <div key={section.title} style={{ borderTop: `1px solid ${XP.desktop}`, paddingTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#000080", fontFamily: `var(--font-dm-sans), Tahoma, system-ui`, textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
+                  {section.title}
+                </p>
+                {section.blocks.map((block: SectionBlock, i: number) => {
+                  if (block.type === "paragraph") return (
+                    <p key={i} style={{ fontSize: 11.5, lineHeight: 1.65, color: XP.textMed, margin: 0, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{block.text}</p>
+                  );
+                  if (block.type === "heading") return (
+                    <p key={i} style={{ fontSize: 11, fontWeight: 700, color: XP.text, margin: "2px 0 0", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{block.text}</p>
+                  );
+                  if (block.type === "bullets") return (
+                    <ul key={i} style={{ margin: "0 0 0 14px", padding: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+                      {block.items.map((item: string, j: number) => (
+                        <li key={j} style={{ fontSize: 11.5, lineHeight: 1.6, color: XP.textMed, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item}</li>
+                      ))}
+                    </ul>
+                  );
+                  if (block.type === "callout") return (
+                    <div key={i} style={{ background: "#fff8e8", borderLeft: "3px solid #c8a000", padding: "8px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
+                      {block.label && (
+                        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.1em", color: "#806000", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>
+                          {block.label}
+                        </span>
+                      )}
+                      <p style={{ fontSize: 11.5, lineHeight: 1.65, color: "#5a3800", margin: 0, fontStyle: "italic", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>
+                        {block.text}
+                      </p>
+                    </div>
+                  );
+                  if (block.type === "kpi-row") return (
+                    <div key={i} style={{ display: "flex", gap: 5, flexWrap: "wrap" as const }}>
+                      {block.items.map((item: { value: string; label: string }, j: number) => (
+                        <div key={j} style={{ flex: 1, minWidth: 70, background: "#f0f4ff", border: "1px solid #c0c8e8", padding: "7px 8px", textAlign: "center" as const }}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "#000080", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item.value}</div>
+                          <div style={{ fontSize: 9, color: "#555", lineHeight: 1.4, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                  return null;
+                })}
+              </div>
+            ))}
             {study.ndaNote && (
               <div style={{
                 background: "#fffbe8",
