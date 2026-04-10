@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { caseStudies, type SectionBlock } from "@/data/projects";
-import { sideProjects } from "@/data/sideProjects";
+import { sideProjects, type SideProject } from "@/data/sideProjects";
 import { articles } from "@/data/writing";
 import Tag from "@/components/ui/Tag";
 import ProcessStep from "@/components/ui/ProcessStep";
@@ -474,28 +474,154 @@ function WorkScreen() {
 
 // ── Content: Lab ──────────────────────────────────────────────────────────
 function LabScreen() {
+  const [activeProject, setActiveProject] = useState<SideProject | null>(null);
+
+  if (activeProject) {
+    return (
+      <div style={{ padding: "12px 12px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* Back */}
+        <button
+          onClick={() => setActiveProject(null)}
+          style={{ alignSelf: "flex-start", background: "none", border: "none", cursor: "pointer", color: "#316ac5", fontSize: 11, fontFamily: `var(--font-dm-sans), Tahoma, system-ui`, textDecoration: "underline", padding: 0 }}
+        >
+          ← Back to Lab/
+        </button>
+
+        {/* Project header */}
+        <div style={{ ...raised, background: XP.window, borderRadius: 4, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+            <span style={{ fontSize: 26, lineHeight: 1, flexShrink: 0 }}>{activeProject.emoji}</span>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: XP.text, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{activeProject.title}</span>
+                {activeProject.badge && <Tag label={activeProject.badge.label} variant={activeProject.badge.variant} />}
+              </div>
+              <span style={{ fontSize: 10, fontFamily: `var(--font-jetbrains), monospace`, color: XP.textMut }}>
+                {activeProject.subtitle}
+              </span>
+            </div>
+          </div>
+
+          {/* Links */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
+            {activeProject.url && (
+              <a href={activeProject.url} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 10, color: "#316ac5", fontFamily: `var(--font-dm-sans), Tahoma, system-ui`, textDecoration: "underline" }}>
+                🌐 Live Demo
+              </a>
+            )}
+            {activeProject.github && (
+              <a href={activeProject.github} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 10, color: "#316ac5", fontFamily: `var(--font-dm-sans), Tahoma, system-ui`, textDecoration: "underline" }}>
+                💻 Source
+              </a>
+            )}
+          </div>
+
+          {/* Tags */}
+          {activeProject.tags && (
+            <div style={{ display: "flex", gap: 3, flexWrap: "wrap" as const }}>
+              {activeProject.tags.map((t: string) => (
+                <span key={t} style={{ fontSize: 9, background: "#e8eef8", border: "1px solid #b0c0e0", color: "#336", padding: "1px 5px", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{t}</span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        {activeProject.description && (
+          <p style={{ fontSize: 12.5, lineHeight: 1.65, color: XP.textMed, margin: 0, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>
+            {activeProject.description}
+          </p>
+        )}
+
+        {/* Sections */}
+        {activeProject.sections && activeProject.sections.map((section: { title: string; blocks: import("@/data/projects").SectionBlock[] }) => (
+          <div key={section.title} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: "#000080", fontFamily: `var(--font-dm-sans), Tahoma, system-ui`, textTransform: "uppercase", letterSpacing: "0.08em", margin: 0, paddingBottom: 4, borderBottom: `1px solid ${XP.desktop}` }}>
+              {section.title}
+            </p>
+            {section.blocks.map((block: import("@/data/projects").SectionBlock, i: number) => {
+              if (block.type === "paragraph") return (
+                <p key={i} style={{ fontSize: 11.5, lineHeight: 1.65, color: XP.textMed, margin: 0, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{block.text}</p>
+              );
+              if (block.type === "heading") return (
+                <p key={i} style={{ fontSize: 11, fontWeight: 700, color: XP.text, margin: "2px 0 0", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{block.text}</p>
+              );
+              if (block.type === "bullets") return (
+                <ul key={i} style={{ margin: "0 0 0 14px", padding: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+                  {block.items.map((item: string, j: number) => (
+                    <li key={j} style={{ fontSize: 11.5, lineHeight: 1.6, color: XP.textMed, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item}</li>
+                  ))}
+                </ul>
+              );
+              if (block.type === "callout") return (
+                <div key={i} style={{ background: "#fff8e8", borderLeft: "3px solid #c8a000", padding: "8px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
+                  {block.label && (
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.1em", color: "#806000", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>
+                      {block.label}
+                    </span>
+                  )}
+                  <p style={{ fontSize: 11.5, lineHeight: 1.65, color: "#5a3800", margin: 0, fontStyle: "italic", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>
+                    {block.text}
+                  </p>
+                </div>
+              );
+              if (block.type === "kpi-row") return (
+                <div key={i} style={{ display: "flex", gap: 5, flexWrap: "wrap" as const }}>
+                  {block.items.map((item: { value: string; label: string }, j: number) => (
+                    <div key={j} style={{ flex: 1, minWidth: 70, background: "#f0f4ff", border: "1px solid #c0c8e8", padding: "7px 8px", textAlign: "center" as const }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#000080", fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item.value}</div>
+                      <div style={{ fontSize: 9, color: "#555", lineHeight: 1.4, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              );
+              return null;
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "12px 12px 24px" }}>
       <div style={{ ...raised, background: XP.window, borderRadius: 4 }}>
         {sideProjects.map((project, i) => (
-          <div key={project.id} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "12px 14px",
-            borderBottom: i < sideProjects.length - 1 ? `1px solid ${XP.desktop}` : "none",
-          }}>
+          <button
+            key={project.id}
+            onClick={project.sections ? () => setActiveProject(project) : undefined}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "12px 14px",
+              borderBottom: i < sideProjects.length - 1 ? `1px solid ${XP.desktop}` : "none",
+              background: "none",
+              border: "none",
+              borderBottomWidth: i < sideProjects.length - 1 ? 1 : 0,
+              borderBottomStyle: "solid" as const,
+              borderBottomColor: XP.desktop,
+              cursor: project.sections ? "pointer" : "default",
+              textAlign: "left" as const,
+            }}
+          >
             <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{project.emoji}</span>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: XP.text }}>{project.title}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: XP.text, fontFamily: `var(--font-dm-sans), Tahoma, system-ui` }}>{project.title}</span>
                 {project.badge && <Tag label={project.badge.label} variant={project.badge.variant} />}
               </div>
               <span style={{ fontSize: 10, fontFamily: `var(--font-jetbrains), monospace`, color: XP.textMut }}>
                 {project.subtitle}
               </span>
             </div>
-          </div>
+            {project.sections && (
+              <span style={{ color: "#000080", fontSize: 16, fontWeight: 700, flexShrink: 0 }}>›</span>
+            )}
+          </button>
         ))}
       </div>
     </div>
